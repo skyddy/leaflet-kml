@@ -2,109 +2,58 @@
 <html lang="uk">
 <head>
   <meta charset="UTF-8" />
-  <title>CodeHS JS + Monaco Editor</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Інтерактивне завдання з JavaScript</title>
   <style>
-    * {
-      box-sizing: border-box;
-    }
-
     body {
+      font-family: Arial, sans-serif;
       margin: 0;
-      font-family: sans-serif;
-      display: flex;
-      flex-direction: column;
-      height: 100vh;
+      padding: 0;
+      background: #f4f4f4;
     }
 
-    #editor {
-      height: 40vh;
-      width: 100%;
-      border-bottom: 2px solid #ccc;
-    }
-
-    #controls {
-      padding: 10px;
-      background-color: #f3f3f3;
-      border-bottom: 2px solid #ccc;
+    header {
+      background-color: #222;
+      color: white;
+      padding: 1rem;
       text-align: center;
     }
 
-    #canvasContainer {
-      flex-grow: 1;
-      padding: 10px;
-      background: #fafafa;
+    .container {
+      padding: 20px;
+      max-width: 1000px;
+      margin: auto;
     }
 
-    canvas {
-      display: block;
-      margin: auto;
-      border: 1px solid #ccc;
-      background: white;
+    iframe {
+      width: 100%;
+      height: 600px;
+      border: none;
+      border-radius: 8px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    footer {
+      text-align: center;
+      font-size: 0.9em;
+      padding: 1rem;
+      color: #555;
     }
   </style>
 </head>
 <body>
+  <header>
+    <h1>Онлайн-завдання з JavaScript</h1>
+  </header>
 
-  <!-- MONACO EDITOR -->
-  <div id="editor"></div>
+  <div class="container">
+    <p>Виконай код у цьому інтерактивному середовищі:</p>
 
-  <!-- RUN BUTTON -->
-  <div id="controls">
-    <button onclick="runCode()">▶️ Запустити код</button>
+    <iframe width="850" height="500" src="https://codehs.com/sandbox/id/test1-jEylJO/embed/?display_mode=default&show_file_tree=False" frameborder="0" allowfullscreen class="video-iframe"></iframe>
   </div>
 
-  <!-- CANVAS -->
-  <div id="canvasContainer">
-    <canvas id="codehsCanvas" width="800" height="400"></canvas>
-  </div>
-
-  <!-- Monaco Editor -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js"></script>
-  <script>
-    window.MonacoEnvironment = {
-      getWorkerUrl: function (moduleId, label) {
-        return `data:text/javascript;charset=utf-8,${encodeURIComponent(`
-          self.MonacoEnvironment = {
-            baseUrl: 'https://cdn.jsdelivr.net/npm/monaco-editor@0.34.1/min/'
-          };
-          importScripts('https://cdn.jsdelivr.net/npm/monaco-editor@0.34.1/min/vs/base/worker/workerMain.js');
-        `)}`;
-      }
-    };
-  </script>
-  <script>
-    require.config({ paths: { vs: 'https://cdn.jsdelivr.net/npm/monaco-editor@0.34.1/min/vs' }});
-    require(["vs/editor/editor.main"], function () {
-      window.editor = monaco.editor.create(document.getElementById('editor'), {
-        value: `let ball = new Circle(50);\nball.setPosition(getWidth()/2, getHeight()/2);\nball.setColor(Color.Blue);\nadd(ball);`,
-        language: "javascript",
-        theme: "vs-light"
-      });
-    });
-  </script>
-
-  <!-- CodeHS JS Library -->
-  <script src="https://codehs.github.io/chs-js-lib/chs.js"></script>
-
-  <!-- RUN CODE -->
-  <script>
-    function runCode() {
-      const userCode = editor.getValue();
-
-      // Очищаємо canvas
-      const canvas = document.getElementById("codehsCanvas");
-      const context = canvas.getContext("2d");
-      context.clearRect(0, 0, canvas.width, canvas.height);
-
-      // Перевизначаємо global canvas для chs.js
-      __initContext(canvas);
-
-      try {
-        new Function(userCode)();
-      } catch (e) {
-        alert("Помилка у коді:\n" + e.message);
-      }
-    }
-  </script>
+  <footer>
+    © 2025 Моя навчальна платформа
+  </footer>
 </body>
 </html>
