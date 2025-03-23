@@ -4,6 +4,10 @@
   <meta charset="UTF-8" />
   <title>CodeHS JS + Monaco Editor</title>
   <style>
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       margin: 0;
       font-family: sans-serif;
@@ -13,38 +17,45 @@
     }
 
     #editor {
-      height: 50vh;
+      height: 40vh;
       width: 100%;
+      border-bottom: 2px solid #ccc;
     }
 
     #controls {
       padding: 10px;
       background-color: #f3f3f3;
-      border-top: 1px solid #ccc;
+      border-bottom: 2px solid #ccc;
+      text-align: center;
     }
 
     #canvasContainer {
       flex-grow: 1;
-      position: relative;
+      padding: 10px;
+      background: #fafafa;
     }
 
     canvas {
-      width: 100%;
-      height: 100%;
       display: block;
+      margin: auto;
+      border: 1px solid #ccc;
+      background: white;
     }
   </style>
 </head>
 <body>
 
+  <!-- MONACO EDITOR -->
   <div id="editor"></div>
 
+  <!-- RUN BUTTON -->
   <div id="controls">
-    <button onclick="runCode()">▶️ Run</button>
+    <button onclick="runCode()">▶️ Запустити код</button>
   </div>
 
+  <!-- CANVAS -->
   <div id="canvasContainer">
-    <canvas id="codehsCanvas" width="800" height="600"></canvas>
+    <canvas id="codehsCanvas" width="800" height="400"></canvas>
   </div>
 
   <!-- Monaco Editor -->
@@ -72,26 +83,26 @@
     });
   </script>
 
-  <!-- CodeHS JavaScript Library -->
+  <!-- CodeHS JS Library -->
   <script src="https://codehs.github.io/chs-js-lib/chs.js"></script>
 
+  <!-- RUN CODE -->
   <script>
     function runCode() {
       const userCode = editor.getValue();
 
-      // Очищення canvas
-      let canvas = document.getElementById("codehsCanvas");
-      let context = canvas.getContext("2d");
+      // Очищаємо canvas
+      const canvas = document.getElementById("codehsCanvas");
+      const context = canvas.getContext("2d");
       context.clearRect(0, 0, canvas.width, canvas.height);
 
-      // Перевизначення глобального canvas для chs.js
-      document.getElementById("codehsCanvas").style.display = "block";
-      __initContext(document.getElementById("codehsCanvas"));
+      // Перевизначаємо global canvas для chs.js
+      __initContext(canvas);
 
       try {
         new Function(userCode)();
       } catch (e) {
-        alert("Помилка в коді:\n" + e);
+        alert("Помилка у коді:\n" + e.message);
       }
     }
   </script>
