@@ -3,7 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Web IDE</title>
+    <title>Enhanced Web IDE</title>
+    <!-- Include CodeMirror for syntax highlighting -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/xml/xml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/css/css.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/javascript/javascript.min.js"></script>
     <style>
         body {
             margin: 0;
@@ -18,26 +24,32 @@
             background: #fff;
             border: 1px solid #ccc;
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
-            height: 80vh;
+            height: 85vh;
             display: flex;
             flex-direction: column;
         }
 
-        .ide-tabs {
-            overflow: hidden;
+        .ide-header {
             background: #f1f1f1;
             border-bottom: 1px solid #ccc;
+            padding: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .ide-tabs {
+            display: flex;
         }
 
         .tab-btn {
-            float: left;
             border: none;
             outline: none;
             cursor: pointer;
-            padding: 12px 20px;
+            padding: 10px 20px;
             background: #f1f1f1;
             transition: 0.3s;
-            font-size: 16px;
+            font-size: 14px;
         }
 
         .tab-btn:hover {
@@ -48,19 +60,26 @@
             background: #ccc;
         }
 
-        .run-btn {
-            float: right;
-            padding: 12px 20px;
-            cursor: pointer;
-            background: #4CAF50;
-            color: white;
-            border: none;
-            font-size: 16px;
+        .ide-controls {
+            display: flex;
+            gap: 5px;
         }
 
-        .run-btn:hover {
-            background: #45a049;
+        .control-btn {
+            padding: 8px 15px;
+            cursor: pointer;
+            border: none;
+            border-radius: 3px;
+            font-size: 14px;
+            color: white;
         }
+
+        .run-btn { background: #4CAF50; }
+        .run-btn:hover { background: #45a049; }
+        .save-btn { background: #2196F3; }
+        .save-btn:hover { background: #1e88e5; }
+        .load-btn { background: #9C27B0; }
+        .load-btn:hover { background: #8e24aa; }
 
         .tab-content {
             display: none;
@@ -72,58 +91,95 @@
             display: block;
         }
 
-        .code-editor {
-            width: 100%;
-            height: 100%;
-            border: none;
-            resize: none;
-            padding: 15px;
-            font-family: 'Courier New', monospace;
+        .CodeMirror {
+            height: 100% !important;
             font-size: 14px;
-            box-sizing: border-box;
-            background: #f8f8f8;
+            line-height: 1.5;
+        }
+
+        .resize-handle {
+            height: 5px;
+            background: #ccc;
+            cursor: ns-resize;
         }
     </style>
 </head>
 <body>
     <div id="ide-container">
-        <div class="ide-tabs">
-            <button class="tab-btn" onclick="switchTab(event, 'htmlTab')">HTML</button>
-            <button class="tab-btn" onclick="switchTab(event, 'cssTab')">CSS</button>
-            <button class="tab-btn" onclick="switchTab(event, 'jsTab')">JS</button>
-            <button class="run-btn" onclick="runCode()">Run</button>
+        <div class="ide-header">
+            <div class="ide-tabs">
+                <button class="tab-btn" onclick="switchTab('htmlTab')">HTML</button>
+                <button class="tab-btn" onclick="switchTab('cssTab')">CSS</button>
+                <button class="tab-btn" onclick="switchTab('jsTab')">JS</button>
+            </div>
+            <div class="ide-controls">
+                <button class="control-btn run-btn" onclick="runCode()">Run</button>
+                <button class="control-btn save-btn" onclick="saveCode()">Save</button>
+                <button class="control-btn load-btn" onclick="loadCode()">Load</button>
+            </div>
         </div>
 
         <div id="htmlTab" class="tab-content">
-            <textarea class="code-editor" placeholder="Enter HTML here..."><h1>Hello World</h1></textarea>
+            <textarea id="html-editor"><h1>Hello World</h1></textarea>
         </div>
         <div id="cssTab" class="tab-content">
-            <textarea class="code-editor" placeholder="Enter CSS here...">h1 { color: blue; text-align: center; }</textarea>
+            <textarea id="css-editor">h1 {
+    color: blue;
+    text-align: center;
+    font-family: Arial, sans-serif;
+}</textarea>
         </div>
         <div id="jsTab" class="tab-content">
-            <textarea class="code-editor" placeholder="Enter JavaScript here...">console.log('Hello from JS!');</textarea>
+            <textarea id="js-editor">console.log('Hello from JS!');
+alert('Welcome to the Enhanced IDE!');</textarea>
         </div>
     </div>
 
     <script>
-        function switchTab(evt, tabId) {
-            var tabs = document.getElementsByClassName('tab-content');
-            for (var i = 0; i < tabs.length; i++) {
+        // Initialize CodeMirror editors
+        const htmlEditor = CodeMirror.fromTextArea(document.getElementById('html-editor'), {
+            mode: 'xml',
+            theme: 'default',
+            lineNumbers: true,
+            autoCloseTags: true
+        });
+        const cssEditor = CodeMirror.fromTextArea(document.getElementById('css-editor'), {
+            mode: 'css',
+            theme: 'default',
+            lineNumbers: true,
+            autoCloseBrackets: true
+        });
+        const jsEditor = CodeMirror.fromTextArea(document.getElementById('js-editor'), {
+            mode: 'javascript',
+            theme: 'default',
+            lineNumbers: true,
+            autoCloseBrackets: true
+        });
+
+        function switchTab(tabId) {
+            const tabs = document.getElementsByClassName('tab-content');
+            for (let i = 0; i < tabs.length; i++) {
                 tabs[i].classList.remove('active');
             }
-            var buttons = document.getElementsByClassName('tab-btn');
-            for (var i = 0; i < buttons.length; i++) {
+            const buttons = document.getElementsByClassName('tab-btn');
+            for (let i = 0; i < buttons.length; i++) {
                 buttons[i].classList.remove('active');
             }
             document.getElementById(tabId).classList.add('active');
-            evt.currentTarget.classList.add('active');
+            document.querySelector(`[onclick="switchTab('${tabId}')"]`).classList.add('active');
+            // Refresh CodeMirror
+            setTimeout(() => {
+                htmlEditor.refresh();
+                cssEditor.refresh();
+                jsEditor.refresh();
+            }, 1);
         }
 
         function runCode() {
-            var html = document.getElementById('htmlTab').querySelector('.code-editor').value;
-            var css = document.getElementById('cssTab').querySelector('.code-editor').value;
-            var js = document.getElementById('jsTab').querySelector('.code-editor').value;
-            var win = window.open('', '_blank');
+            const html = htmlEditor.getValue();
+            const css = cssEditor.getValue();
+            const js = jsEditor.getValue();
+            const win = window.open('', '_blank');
             win.document.write(`
                 <!DOCTYPE html>
                 <html>
@@ -138,8 +194,65 @@
             `);
         }
 
+        function saveCode() {
+            const code = {
+                html: htmlEditor.getValue(),
+                css: cssEditor.getValue(),
+                js: jsEditor.getValue()
+            };
+            localStorage.setItem('web-ide-code', JSON.stringify(code));
+            alert('Code saved successfully!');
+        }
+
+        function loadCode() {
+            const savedCode = localStorage.getItem('web-ide-code');
+            if (savedCode) {
+                const code = JSON.parse(savedCode);
+                htmlEditor.setValue(code.html || '');
+                cssEditor.setValue(code.css || '');
+                jsEditor.setValue(code.js || '');
+                alert('Code loaded successfully!');
+            } else {
+                alert('No saved code found.');
+            }
+        }
+
+        // Make IDE resizable
+        const container = document.getElementById('ide-container');
+        let isResizing = false;
+        let lastY;
+
+        container.insertAdjacentHTML('beforeend', '<div class="resize-handle"></div>');
+        const resizeHandle = container.querySelector('.resize-handle');
+
+        resizeHandle.addEventListener('mousedown', (e) => {
+            isResizing = true;
+            lastY = e.clientY;
+            document.addEventListener('mousemove', resize);
+            document.addEventListener('mouseup', stopResize);
+        });
+
+        function resize(e) {
+            if (!isResizing) return;
+            const dy = e.clientY - lastY;
+            const newHeight = container.offsetHeight + dy;
+            if (newHeight > 200 && newHeight < window.innerHeight - 40) {
+                container.style.height = newHeight + 'px';
+            }
+            lastY = e.clientY;
+            htmlEditor.refresh();
+            cssEditor.refresh();
+            jsEditor.refresh();
+        }
+
+        function stopResize() {
+            isResizing = false;
+            document.removeEventListener('mousemove', resize);
+            document.removeEventListener('mouseup', stopResize);
+        }
+
         // Activate first tab by default
-        document.getElementsByClassName('tab-btn')[0].click();
+        switchTab('htmlTab');
     </script>
 </body>
 </html>
