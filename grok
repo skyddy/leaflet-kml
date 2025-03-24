@@ -1,0 +1,149 @@
+<div id="injectable-ide" style="display: none;">
+    <style>
+        #ide-container {
+            position: fixed;
+            top: 10%;
+            left: 10%;
+            width: 80%;
+            height: 80%;
+            background: #fff;
+            border: 1px solid #ccc;
+            box-shadow: 0 0 10px rgba(0,0,0,0.3);
+            z-index: 9999;
+            font-family: Arial, sans-serif;
+        }
+
+        .ide-tabs {
+            overflow: hidden;
+            background: #f1f1f1;
+        }
+
+        .tab-btn {
+            float: left;
+            border: none;
+            outline: none;
+            cursor: pointer;
+            padding: 10px 16px;
+            background: #f1f1f1;
+            transition: 0.3s;
+        }
+
+        .tab-btn:hover {
+            background: #ddd;
+        }
+
+        .tab-btn.active {
+            background: #ccc;
+        }
+
+        .tab-content {
+            display: none;
+            height: calc(100% - 40px);
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .code-editor {
+            width: 100%;
+            height: 100%;
+            border: none;
+            resize: none;
+            padding: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+        }
+
+        .close-btn {
+            float: right;
+            padding: 10px;
+            cursor: pointer;
+        }
+
+        .run-btn {
+            float: right;
+            padding: 10px;
+            cursor: pointer;
+            background: #4CAF50;
+            color: white;
+            border: none;
+        }
+    </style>
+
+    <div id="ide-container">
+        <div class="ide-tabs">
+            <button class="tab-btn" onclick="switchTab(event, 'htmlTab')">HTML</button>
+            <button class="tab-btn" onclick="switchTab(event, 'cssTab')">CSS</button>
+            <button class="tab-btn" onclick="switchTab(event, 'jsTab')">JS</button>
+            <button class="run-btn" onclick="runCode()">Run</button>
+            <span class="close-btn" onclick="document.getElementById('injectable-ide').style.display='none'">×</span>
+        </div>
+
+        <div id="htmlTab" class="tab-content">
+            <textarea class="code-editor" placeholder="Enter HTML here..."></textarea>
+        </div>
+        <div id="cssTab" class="tab-content">
+            <textarea class="code-editor" placeholder="Enter CSS here..."></textarea>
+        </div>
+        <div id="jsTab" class="tab-content">
+            <textarea class="code-editor" placeholder="Enter JavaScript here..."></textarea>
+        </div>
+    </div>
+
+    <script>
+        function switchTab(evt, tabId) {
+            var tabs = document.getElementsByClassName('tab-content');
+            for (var i = 0; i < tabs.length; i++) {
+                tabs[i].classList.remove('active');
+            }
+            var buttons = document.getElementsByClassName('tab-btn');
+            for (var i = 0; i < buttons.length; i++) {
+                buttons[i].classList.remove('active');
+            }
+            document.getElementById(tabId).classList.add('active');
+            evt.currentTarget.classList.add('active');
+        }
+
+        function runCode() {
+            var html = document.getElementById('htmlTab').querySelector('.code-editor').value;
+            var css = document.getElementById('cssTab').querySelector('.code-editor').value;
+            var js = document.getElementById('jsTab').querySelector('.code-editor').value;
+            var win = window.open('', '_blank');
+            win.document.write(`<style>${css}</style>${html}<script>${js}</script>`);
+        }
+
+        var ide = document.getElementById('ide-container');
+        var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+        ide.onmousedown = dragMouseDown;
+
+        function dragMouseDown(e) {
+            e = e || window.event;
+            e.preventDefault();
+            pos3 = e.clientX;
+            pos4 = e.clientY;
+            document.onmouseup = closeDragElement;
+            document.onmousemove = elementDrag;
+        }
+
+        function elementDrag(e) {
+            e = e || window.event;
+            e.preventDefault();
+            pos1 = pos3 - e.clientX;
+            pos2 = pos4 - e.clientY;
+            pos3 = e.clientX;
+            pos4 = e.clientY;
+            ide.style.top = (ide.offsetTop - pos2) + "px";
+            ide.style.left = (ide.offsetLeft - pos1) + "px";
+        }
+
+        function closeDragElement() {
+            document.onmouseup = null;
+            document.onmousemove = null;
+        }
+
+        // Show IDE and activate first tab
+        document.getElementById('injectable-ide').style.display = 'block';
+        document.getElementsByClassName('tab-btn')[0].click();
+    </script>
+</div>
