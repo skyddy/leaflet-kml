@@ -1,21 +1,32 @@
-<div id="injectable-ide" style="display: none;">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web IDE</title>
     <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f0f0f0;
+        }
+
         #ide-container {
-            position: fixed;
-            top: 10%;
-            left: 10%;
-            width: 80%;
-            height: 80%;
+            width: 90%;
+            max-width: 1200px;
+            margin: 20px auto;
             background: #fff;
             border: 1px solid #ccc;
-            box-shadow: 0 0 10px rgba(0,0,0,0.3);
-            z-index: 9999;
-            font-family: Arial, sans-serif;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            height: 80vh;
+            display: flex;
+            flex-direction: column;
         }
 
         .ide-tabs {
             overflow: hidden;
             background: #f1f1f1;
+            border-bottom: 1px solid #ccc;
         }
 
         .tab-btn {
@@ -23,9 +34,10 @@
             border: none;
             outline: none;
             cursor: pointer;
-            padding: 10px 16px;
+            padding: 12px 20px;
             background: #f1f1f1;
             transition: 0.3s;
+            font-size: 16px;
         }
 
         .tab-btn:hover {
@@ -36,9 +48,24 @@
             background: #ccc;
         }
 
+        .run-btn {
+            float: right;
+            padding: 12px 20px;
+            cursor: pointer;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            font-size: 16px;
+        }
+
+        .run-btn:hover {
+            background: #45a049;
+        }
+
         .tab-content {
             display: none;
-            height: calc(100% - 40px);
+            flex-grow: 1;
+            padding: 0;
         }
 
         .tab-content.active {
@@ -50,44 +77,31 @@
             height: 100%;
             border: none;
             resize: none;
-            padding: 10px;
+            padding: 15px;
             font-family: 'Courier New', monospace;
             font-size: 14px;
-        }
-
-        .close-btn {
-            float: right;
-            padding: 10px;
-            cursor: pointer;
-        }
-
-        .run-btn {
-            float: right;
-            padding: 10px;
-            cursor: pointer;
-            background: #4CAF50;
-            color: white;
-            border: none;
+            box-sizing: border-box;
+            background: #f8f8f8;
         }
     </style>
-
+</head>
+<body>
     <div id="ide-container">
         <div class="ide-tabs">
             <button class="tab-btn" onclick="switchTab(event, 'htmlTab')">HTML</button>
             <button class="tab-btn" onclick="switchTab(event, 'cssTab')">CSS</button>
             <button class="tab-btn" onclick="switchTab(event, 'jsTab')">JS</button>
             <button class="run-btn" onclick="runCode()">Run</button>
-            <span class="close-btn" onclick="document.getElementById('injectable-ide').style.display='none'">×</span>
         </div>
 
         <div id="htmlTab" class="tab-content">
-            <textarea class="code-editor" placeholder="Enter HTML here..."></textarea>
+            <textarea class="code-editor" placeholder="Enter HTML here..."><h1>Hello World</h1></textarea>
         </div>
         <div id="cssTab" class="tab-content">
-            <textarea class="code-editor" placeholder="Enter CSS here..."></textarea>
+            <textarea class="code-editor" placeholder="Enter CSS here...">h1 { color: blue; text-align: center; }</textarea>
         </div>
         <div id="jsTab" class="tab-content">
-            <textarea class="code-editor" placeholder="Enter JavaScript here..."></textarea>
+            <textarea class="code-editor" placeholder="Enter JavaScript here...">console.log('Hello from JS!');</textarea>
         </div>
     </div>
 
@@ -110,40 +124,22 @@
             var css = document.getElementById('cssTab').querySelector('.code-editor').value;
             var js = document.getElementById('jsTab').querySelector('.code-editor').value;
             var win = window.open('', '_blank');
-            win.document.write(`<style>${css}</style>${html}<script>${js}</script>`);
+            win.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <style>${css}</style>
+                </head>
+                <body>
+                    ${html}
+                    <script>${js}</script>
+                </body>
+                </html>
+            `);
         }
 
-        var ide = document.getElementById('ide-container');
-        var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
-        ide.onmousedown = dragMouseDown;
-
-        function dragMouseDown(e) {
-            e = e || window.event;
-            e.preventDefault();
-            pos3 = e.clientX;
-            pos4 = e.clientY;
-            document.onmouseup = closeDragElement;
-            document.onmousemove = elementDrag;
-        }
-
-        function elementDrag(e) {
-            e = e || window.event;
-            e.preventDefault();
-            pos1 = pos3 - e.clientX;
-            pos2 = pos4 - e.clientY;
-            pos3 = e.clientX;
-            pos4 = e.clientY;
-            ide.style.top = (ide.offsetTop - pos2) + "px";
-            ide.style.left = (ide.offsetLeft - pos1) + "px";
-        }
-
-        function closeDragElement() {
-            document.onmouseup = null;
-            document.onmousemove = null;
-        }
-
-        // Show IDE and activate first tab
-        document.getElementById('injectable-ide').style.display = 'block';
+        // Activate first tab by default
         document.getElementsByClassName('tab-btn')[0].click();
     </script>
-</div>
+</body>
+</html>
