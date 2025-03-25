@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WIM CodeLab Example</title>
+</head>
+<body>
+  <div id="codelab-container"></div>
+
+  <!-- Підключення Monaco Editor із CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs/loader.min.js"></script>
+
+  <!-- Підключення WIM CodeLab бандла -->
+  <script src="https://skyddy.github.io/leaflet-kml/wim-codelab-bundle.js"></script>
+
+  <!-- Ініціалізація -->
+  <script>
+    const challenge = {
+      id: 'get-article-headline',
+      title: 'Get Article Headline',
+      description: 'Return the headline from the h1 element using <code>getArticleHeadline()</code>',
+      editors: {
+        js: `const getArticleHeadline = () => {\n  // your code here\n};\n\nconsole.log(getArticleHeadline());`,
+        html: `<h1>First human lands on Mars!</h1>`,
+        css: `body { font-family: sans-serif; text-align: center; }`
+      },
+      solution: {
+        js: `const getArticleHeadline = () => {\n  return document.querySelector('h1').textContent;\n};\n\nconsole.log(getArticleHeadline());`,
+        html: `<h1>First human lands on Mars!</h1>`,
+        css: `body { font-family: sans-serif; text-align: center; }`
+      },
+      tests: [
+        { name: 'getArticleHeadline', expected: 'First human lands on Mars!', type: 'function', args: [] },
+        { name: 'typeof getArticleHeadline', expected: 'function', type: 'expression' }
+      ]
+    };
+
+    window.initWimCodeLab({
+      container: '#codelab-container',
+      challenge: challenge,
+      options: { height: '600px' }
+    });
+  </script>
+</body>
+</html>
