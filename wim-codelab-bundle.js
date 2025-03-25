@@ -1,6 +1,5 @@
 // wim-codelab-bundle.js
 (function () {
-  // Клас EditorManager (адаптований)
   class EditorManager {
     constructor(container) {
       this.editors = {};
@@ -37,16 +36,25 @@
     }
   }
 
-  // Клас PreviewManager (без змін, але адаптований до префікса)
   class PreviewManager {
     constructor(tests, container) {
+      this.tests = tests;
+      this.container = container; // Зберігаємо контейнер
       this.iframe = container.querySelector('.wimcl-preview-frame');
       this.consoleOutput = container.querySelector('.wimcl-console-output');
       this.testStatus = container.querySelector('.wimcl-test-status');
-      this.tests = tests;
+
+      if (!this.iframe) {
+        console.error('WIM CodeLab: Preview iframe not found in container');
+      }
     }
 
     runCode(code, tests) {
+      if (!this.iframe) {
+        console.error('WIM CodeLab: Cannot run code - iframe is undefined');
+        return;
+      }
+
       this.consoleOutput.innerHTML = '';
       this.testStatus.textContent = 'Running...';
       const { js, html, css } = code;
@@ -61,7 +69,7 @@
       }).filter(Boolean).join('\n');
 
       const wrappedJS = `(function(){\n${js}\n${expose}\n})();`;
-      this.DiffFrame.srcdoc = `
+      this.iframe.srcdoc = `
         <!DOCTYPE html>
         <html lang="en">
         <head><style>${css}</style><title>WIM CodeLab</title></head>
@@ -103,7 +111,6 @@
     }
   }
 
-  // Функція runTests (з tests.js)
   function runTests(tests) {
     return tests.map(test => {
       if (test.type === 'function') {
@@ -128,7 +135,6 @@
     }).join('\n');
   }
 
-  // Головна функція ініціалізації
   window.initWimCodeLab = async function (config) {
     const { container, challenge, options = {} } = config;
     const target = typeof container === 'string' ? document.querySelector(container) : container;
@@ -136,7 +142,6 @@
     if (!target) throw new Error('WIM CodeLab: Container not found');
     if (!challenge) throw new Error('WIM CodeLab: Challenge data is required');
 
-    // Генерація HTML
     target.innerHTML = `
       <div class="wimcl-container">
         <div class="wimcl-left-panel">
@@ -168,7 +173,6 @@
       </div>
     `;
 
-    // Додавання стилів
     const style = document.createElement('style');
     style.textContent = `
       .wimcl-container { display: flex; height: ${options.height || '100%'}; }
@@ -191,15 +195,12 @@
     `;
     document.head.appendChild(style);
 
-    // Ініціалізація редактора
     const editorManager = new EditorManager(target);
     await editorManager.init();
     editorManager.setValues(challenge.editors);
 
-    // Ініціалізація перегляду
     const previewManager = new PreviewManager(challenge.tests, target);
 
-    // Налаштування вкладок
     target.querySelectorAll('.wimcl-tab').forEach(tab => {
       tab.addEventListener('click', () => {
         target.querySelectorAll('.wimcl-tab').forEach(t => t.classList.remove('wimcl-active'));
@@ -209,7 +210,6 @@
       });
     });
 
-    // Події кнопок
     target.querySelector('.wimcl-reset-btn').addEventListener('click', () => editorManager.setValues(challenge.editors));
     target.querySelector('.wimcl-solution-btn').addEventListener('click', () => editorManager.setValues(challenge.solution));
     target.querySelector('.wimcl-run-btn').addEventListener('click', () => previewManager.runCode(editorManager.getValues(), challenge.tests));
